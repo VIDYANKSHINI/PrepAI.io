@@ -171,9 +171,7 @@ function FeaturesSection() {
 function HowItWorksSection() {
   const steps = [
     { step: '01', title: 'Set Up Your Profile', description: 'Upload your resume and select your target role and difficulty level.' },
-    { step: '02', title: 'Practice Interviews', description: 'Go through realistic interview rounds with our AI interviewer.' },
-    { step: '03', title: 'Get Detailed Feedback', description: 'Receive comprehensive analysis and actionable improvement tips.' },
-    { step: '04', title: 'Track Progress', description: 'Monitor your improvement over time with detailed analytics.' },
+    
   ]
 
   return (
@@ -182,10 +180,10 @@ function HowItWorksSection() {
         <div className="text-center mb-16">
           <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">How it works</p>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Start practicing in minutes
+            Tagline{/* Start practicing in minutes */}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Our streamlined process gets you from signup to your first practice interview in under 2 minutes.
+            Details{/*Our streamlined process gets you from signup to your first practice interview in under 2 minutes. */}
           </p>
         </div>
 
@@ -208,6 +206,7 @@ function HowItWorksSection() {
 
 function TestimonialsSection() {
   const testimonials = [
+    {/* Testimonial 1 }
     {
       quote: "PrepAI helped me land my dream job at a FAANG company. The AI feedback was incredibly detailed and helped me identify my weak points.",
       name: "Sarah Chen",
@@ -226,6 +225,7 @@ function TestimonialsSection() {
       role: "Product Manager at Amazon",
       initials: "ER",
     },
+    */}
   ]
 
   return (
@@ -284,11 +284,11 @@ function CTASection({ onGetStarted }: { onGetStarted: () => void }) {
             onClick={onGetStarted}
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-4 text-lg font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:brightness-110 hover:shadow-xl hover:shadow-primary/30 active:scale-95"
           >
-            Start Your Free Interview
+            Start Your Interview
             <ArrowRight className="h-5 w-5" />
           </button>
           <p className="mt-4 text-sm text-muted-foreground">
-            No credit card required. Start practicing in minutes.
+            punchline{/* No credit card required. Start practicing in minutes. */}
           </p>
         </div>
       </div>
@@ -393,7 +393,7 @@ export function HeroSection() {
               </button>
               <button className="inline-flex items-center gap-2 rounded-xl border border-border bg-card/50 px-6 py-4 text-lg font-medium text-foreground transition-all hover:bg-card">
                 <Play className="h-5 w-5" />
-                Watch Demo
+                Watch Demo{/* --- LINK attach of video --- */}
               </button>
             </div>
 
@@ -401,15 +401,15 @@ export function HeroSection() {
             <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                No credit card required
+                Feacture 1
               </span>
               <span className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                5 interview rounds
+                Feacture 2
               </span>
               <span className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                Instant AI feedback
+                Feacture 3
               </span>
             </div>
           </div>

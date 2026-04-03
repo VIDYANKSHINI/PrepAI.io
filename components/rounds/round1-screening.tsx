@@ -1,182 +1,400 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useInterview } from '@/lib/interview-context'
+import { useState, useRef } from 'react'
+import { useInterview, type ResumeData } from '@/lib/interview-context'
+import { RoundProgress } from '../round-progress'
+import { PrepLogo } from '../prep-logo'
+import { Upload, FileText, X, Loader2, CheckCircle, ArrowRight, ChevronRight } from 'lucide-react'
 
-const questions = [
+const basicQuestions = [
+  "Tell me about yourself and your background.",
+  "What are your key technical skills?",
+  "Describe a project you're most proud of.",
+  "Why are you interested in this role?",
+  "What are your career goals?",
+]
+
+const mcqQuestions = [
   {
-    type: 'mcq',
-    question: 'What is the output of 2 + "2" in JavaScript?',
-    options: ['4', '22', 'Error', 'NaN'],
-    answer: '22',
+    question: "Which data structure would be most efficient for implementing a LRU cache?",
+    options: ["Array", "LinkedList + HashMap", "Binary Tree", "Stack"],
+    correct: 1,
   },
   {
-    type: 'mcq',
-    question: 'Which data structure uses LIFO?',
-    options: ['Queue', 'Stack', 'Tree', 'Graph'],
-    answer: 'Stack',
+    question: "What is the time complexity of binary search?",
+    options: ["O(n)", "O(log n)", "O(n²)", "O(1)"],
+    correct: 1,
   },
   {
-    type: 'coding',
-    question: 'Write a function to check if a number is even.',
-    answer: '%2',
+    question: "Which design pattern is used when you need only one instance of a class?",
+    options: ["Factory", "Observer", "Singleton", "Decorator"],
+    correct: 2,
   },
   {
-    type: 'coding',
-    question: 'Return the maximum of two numbers.',
-    answer: 'Math.max',
+    question: "What does REST stand for?",
+    options: ["Remote Execution State Transfer", "Representational State Transfer", "Request State Transfer", "Resource State Transfer"],
+    correct: 1,
+  },
+  {
+    question: "Which HTTP method is idempotent?",
+    options: ["POST", "PUT", "PATCH", "None of the above"],
+    correct: 1,
   },
 ]
 
-export function Round1Aptitude() {
-  const { setCurrentRound, updateRoundScore } = useInterview()
+export function Round1Screening() {
+  const { config, setConfig, setCurrentStep, setCurrentRound, updateRoundScore } = useInterview()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  
+  const [stage, setStage] = useState<'resume' | 'basic' | 'mcq' | 'complete'>('resume')
+  const [resumeFile, setResumeFile] = useState<File | null>(null)
+  const [resumeData, setResumeData] = useState<ResumeData | null>(null)
+  const [isParsingResume, setIsParsingResume] = useState(false)
+  const [resumeError, setResumeError] = useState<string | null>(null)
+  
+  const [currentQuestion, setCurrentQuestion] = useState(0)
+  const [basicAnswers, setBasicAnswers] = useState<string[]>([])
+  const [currentAnswer, setCurrentAnswer] = useState('')
+  
+  const [mcqAnswers, setMcqAnswers] = useState<number[]>([])
+  const [selectedMcq, setSelectedMcq] = useState<number | null>(null)
 
-  const [current, setCurrent] = useState(0)
-  const [selected, setSelected] = useState('')
-  const [code, setCode] = useState('')
-  const [score, setScore] = useState(0)
-  const [time, setTime] = useState(45)
-  const [skipped, setSkipped] = useState(0)
-
-  const q = questions[current]
-
-  // ⏱ Timer
-  useEffect(() => {
-    if (time === 0) handleNext()
-    const t = setInterval(() => setTime((p) => p - 1), 1000)
-    return () => clearInterval(t)
-  }, [time])
-
-  // 👉 Next Question
-  const handleNext = () => {
-    let newScore = score
-
-    if (q.type === 'mcq' && selected === q.answer) {
-      newScore += 10
+  const handleResumeUpload = async (file: File) => {
+    if (!file.type.includes('pdf') && !file.type.includes('text')) {
+      setResumeError('Please upload a PDF or text file')
+      return
     }
 
-    if (q.type === 'coding' && code.toLowerCase().includes(q.answer)) {
-      newScore += 15
-    }
+    setResumeFile(file)
+    setIsParsingResume(true)
+    setResumeError(null)
 
-    setScore(newScore)
+    try {
+      const formData = new FormData()
+      formData.append('resume', file)
 
-    if (current < questions.length - 1) {
-      setCurrent(current + 1)
-      setSelected('')
-      setCode('')
-      setTime(45)
-    } else {
-      finish(newScore)
+      const response = await fetch('/api/parse-resume', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) throw new Error('Failed to parse resume')
+
+      const data = await response.json()
+      setResumeData(data.resumeData)
+      
+      if (config) {
+        setConfig({
+          ...config,
+          resumeData: data.resumeData,
+          resumeText: data.rawText,
+        })
+      }
+    } catch (error) {
+      console.error('Error parsing resume:', error)
+      setResumeError('Could not parse resume. You can still continue.')
+    } finally {
+      setIsParsingResume(false)
     }
   }
 
-  // ⏭ Skip
-  const handleSkip = () => {
-    setSkipped(skipped + 1)
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) handleResumeUpload(file)
+  }
 
-    if (current < questions.length - 1) {
-      setCurrent(current + 1)
-      setSelected('')
-      setCode('')
-      setTime(45)
-    } else {
-      finish(score)
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    const file = e.dataTransfer.files[0]
+    if (file) handleResumeUpload(file)
+  }
+
+  const removeResume = () => {
+    setResumeFile(null)
+    setResumeData(null)
+    setResumeError(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  const handleBasicNext = () => {
+    if (currentAnswer.trim()) {
+      setBasicAnswers([...basicAnswers, currentAnswer])
+      setCurrentAnswer('')
+      
+      if (currentQuestion < basicQuestions.length - 1) {
+        setCurrentQuestion(currentQuestion + 1)
+      } else {
+        setStage('mcq')
+        setCurrentQuestion(0)
+      }
     }
   }
 
-  // 🛑 Finish
-  const finish = (finalScore: number) => {
-    const percentage = (finalScore / 50) * 100
+  const handleMcqNext = () => {
+    if (selectedMcq !== null) {
+      setMcqAnswers([...mcqAnswers, selectedMcq])
+      setSelectedMcq(null)
+      
+      if (currentQuestion < mcqQuestions.length - 1) {
+        setCurrentQuestion(currentQuestion + 1)
+      } else {
+        // Calculate score and proceed
+        const correctAnswers = mcqAnswers.concat(selectedMcq).filter(
+          (ans, idx) => ans === mcqQuestions[idx].correct
+        ).length
+        
+        updateRoundScore('screening', {
+          score: (correctAnswers / mcqQuestions.length) * 100,
+          maxScore: 100,
+          feedback: `You answered ${correctAnswers} out of ${mcqQuestions.length} MCQs correctly.`,
+          details: {
+            mcqScore: (correctAnswers / mcqQuestions.length) * 100,
+            basicQuestions: basicAnswers.length,
+          },
+        })
+        
+        setStage('complete')
+      }
+    }
+  }
 
-    updateRoundScore('aptitude', {
-      score: finalScore,
-      maxScore: 50,
-      feedback:
-        percentage > 70
-          ? 'Strong fundamentals'
-          : percentage > 40
-          ? 'Average performance'
-          : 'Needs improvement',
-      details: {
-        skipped,
-        attempted: questions.length - skipped,
-      },
-    })
-
+  const proceedToNextRound = () => {
     setCurrentRound(2)
+    setCurrentStep('round2-technical')
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
-
-      {/* Header */}
-      <div className="flex justify-between mb-4">
-        <h1 className="text-xl font-bold">Round 1: Aptitude</h1>
-        <span>{time}s</span>
+    <div className="screen-container relative bg-background">
+      {/* Background effects */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute left-1/4 top-1/4 h-64 w-64 rounded-full bg-primary/10 blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 h-64 w-64 rounded-full bg-green-500/5 blur-3xl"></div>
       </div>
 
-      {/* Progress */}
-      <div className="w-full bg-gray-700 h-2 mb-6">
-        <div
-          className="bg-blue-500 h-2"
-          style={{ width: `${((current + 1) / questions.length) * 100}%` }}
-        />
-      </div>
-
-      {/* Question */}
-      <div className="mb-4">
-        <p className="text-lg">{q.question}</p>
-      </div>
-
-      {/* MCQ */}
-      {q.type === 'mcq' && (
-        <div className="flex flex-col gap-3">
-          {q.options.map((opt) => (
-            <button
-              key={opt}
-              onClick={() => setSelected(opt)}
-              className={`p-3 border rounded ${
-                selected === opt ? 'bg-blue-500' : 'bg-gray-800'
-              }`}
-            >
-              {opt}
-            </button>
-          ))}
+      <div className="content-container relative z-10 py-6">
+        {/* Header */}
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <PrepLogo className="h-8 w-8" />
+            <span className="text-xl font-bold text-foreground">Round 1: Screening</span>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            {config?.name}
+          </div>
         </div>
-      )}
 
-      {/* Coding */}
-      {q.type === 'coding' && (
-        <textarea
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          placeholder="Write your code here..."
-          className="w-full mt-2 p-3 text-black rounded"
-          rows={4}
-        />
-      )}
+        {/* Progress */}
+        <div className="mb-8">
+          <RoundProgress />
+        </div>
 
-      {/* Buttons */}
-      <div className="flex gap-3 mt-6">
-        <button
-          onClick={handleSkip}
-          className="px-4 py-2 bg-gray-600 rounded"
-        >
-          Skip
-        </button>
+        {/* Content */}
+        <div className="mx-auto max-w-3xl">
+          {stage === 'resume' && (
+            <div className="space-y-6 rounded-xl border border-border bg-card p-6">
+              <div>
+                <h2 className="text-xl font-bold text-foreground">Upload Your Resume</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  We&apos;ll analyze your resume to generate personalized questions
+                </p>
+              </div>
 
-        <button
-          onClick={handleNext}
-          className="px-6 py-2 bg-green-600 rounded"
-        >
-          {current < questions.length - 1 ? 'Next' : 'Finish'}
-        </button>
-      </div>
+              {!resumeFile ? (
+                <div
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={handleDrop}
+                  className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-background p-12 transition-colors hover:border-primary hover:bg-primary/5"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload className="mb-4 h-12 w-12 text-muted-foreground" />
+                  <p className="text-lg font-medium text-foreground">Drop your resume here</p>
+                  <p className="mt-1 text-sm text-muted-foreground">or click to browse (PDF supported)</p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.txt"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </div>
+              ) : (
+                <div className="rounded-lg border border-border bg-background p-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${resumeData ? 'bg-green-500/20' : 'bg-primary/20'}`}>
+                      {isParsingResume ? (
+                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      ) : resumeData ? (
+                        <CheckCircle className="h-6 w-6 text-green-500" />
+                      ) : (
+                        <FileText className="h-6 w-6 text-primary" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-foreground">{resumeFile.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {isParsingResume ? 'Analyzing...' : resumeData ? 'Parsed successfully' : 'Ready'}
+                      </p>
+                    </div>
+                    <button onClick={removeResume} className="p-2 text-muted-foreground hover:text-foreground">
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
 
-      {/* Footer Info */}
-      <div className="mt-6 text-sm text-gray-400">
-        Question {current + 1} of {questions.length}
+                  {resumeData && (
+                    <div className="mt-4 space-y-3 border-t border-border pt-4">
+                      <div>
+                        <p className="text-xs font-semibold uppercase text-muted-foreground">Skills Detected</p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {resumeData.skills.slice(0, 8).map((skill, i) => (
+                            <span key={i} className="rounded-full bg-primary/10 px-3 py-1 text-xs text-primary">
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      {resumeData.experience.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold uppercase text-muted-foreground">Experience</p>
+                          <p className="mt-1 text-sm text-foreground">
+                            {resumeData.experience[0].title} at {resumeData.experience[0].company}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {resumeError && <p className="text-sm text-amber-500">{resumeError}</p>}
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setStage('basic')}
+                  className="px-6 py-2 text-muted-foreground hover:text-foreground"
+                >
+                  Skip
+                </button>
+                <button
+                  onClick={() => setStage('basic')}
+                  disabled={isParsingResume}
+                  className="flex items-center gap-2 rounded-lg bg-primary px-6 py-2 font-medium text-primary-foreground hover:brightness-110 disabled:opacity-50"
+                >
+                  Continue <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {stage === 'basic' && (
+            <div className="space-y-6 rounded-xl border border-border bg-card p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-foreground">Basic Questions</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Question {currentQuestion + 1} of {basicQuestions.length}
+                  </p>
+                </div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                  {currentQuestion + 1}/{basicQuestions.length}
+                </div>
+              </div>
+
+              <div className="rounded-lg bg-background p-4">
+                <p className="text-lg font-medium text-foreground">{basicQuestions[currentQuestion]}</p>
+              </div>
+
+              <textarea
+                value={currentAnswer}
+                onChange={(e) => setCurrentAnswer(e.target.value)}
+                placeholder="Type your answer here..."
+                rows={4}
+                className="w-full rounded-lg border border-border bg-background p-4 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+
+              <div className="flex justify-end">
+                <button
+                  onClick={handleBasicNext}
+                  disabled={!currentAnswer.trim()}
+                  className="flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:brightness-110 disabled:opacity-50"
+                >
+                  {currentQuestion < basicQuestions.length - 1 ? 'Next Question' : 'Continue to MCQs'}
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {stage === 'mcq' && (
+            <div className="space-y-6 rounded-xl border border-border bg-card p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-foreground">Aptitude Test</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Question {currentQuestion + 1} of {mcqQuestions.length}
+                  </p>
+                </div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                  {currentQuestion + 1}/{mcqQuestions.length}
+                </div>
+              </div>
+
+              <div className="rounded-lg bg-background p-4">
+                <p className="text-lg font-medium text-foreground">{mcqQuestions[currentQuestion].question}</p>
+              </div>
+
+              <div className="space-y-3">
+                {mcqQuestions[currentQuestion].options.map((option, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setSelectedMcq(idx)}
+                    className={`w-full rounded-lg border p-4 text-left transition-all ${
+                      selectedMcq === idx
+                        ? 'border-primary bg-primary/10'
+                        : 'border-border bg-background hover:border-primary/50'
+                    }`}
+                  >
+                    <span className="mr-3 inline-flex h-6 w-6 items-center justify-center rounded-full bg-secondary text-xs font-bold">
+                      {String.fromCharCode(65 + idx)}
+                    </span>
+                    {option}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  onClick={handleMcqNext}
+                  disabled={selectedMcq === null}
+                  className="flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:brightness-110 disabled:opacity-50"
+                >
+                  {currentQuestion < mcqQuestions.length - 1 ? 'Next' : 'Submit'}
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {stage === 'complete' && (
+            <div className="space-y-6 rounded-xl border border-border bg-card p-8 text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20">
+                <CheckCircle className="h-8 w-8 text-green-500" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-foreground">Round 1 Complete!</h2>
+                <p className="mt-2 text-muted-foreground">
+                  Great job! You&apos;ve completed the screening round.
+                </p>
+              </div>
+              <button
+                onClick={proceedToNextRound}
+                className="mx-auto flex items-center gap-2 rounded-lg bg-primary px-8 py-3 font-medium text-primary-foreground hover:brightness-110"
+              >
+                Proceed to Round 2: Technical
+                <ArrowRight className="h-5 w-5" />
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

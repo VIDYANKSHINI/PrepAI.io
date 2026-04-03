@@ -78,7 +78,7 @@ export function Round1Screening() {
         body: formData,
       })
 
-      if (!response.ok) throw new Error('Failed to parse resume')
+      if (!response.ok) throw new Error(' resume uploading..')
 
       const data = await response.json()
       setResumeData(data.resumeData)
@@ -91,8 +91,8 @@ export function Round1Screening() {
         })
       }
     } catch (error) {
-      console.error('Error parsing resume:', error)
-      setResumeError('Could not parse resume. You can still continue.')
+      console.error('Uploading resume:', error)
+      setResumeError('Your resume is being analyzed. Feel free to continue.')
     } finally {
       setIsParsingResume(false)
     }

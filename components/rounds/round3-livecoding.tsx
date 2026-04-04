@@ -1,48 +1,31 @@
-"use client"
-import { useState } from "react"
+'use client'
+
+import { useState, useEffect } from 'react'
 
 export function Round3LiveCoding() {
-  const [code, setCode] = useState("function reverse(){return 'done'}")
-  const [out, setOut] = useState("")
-  const [start, setStart] = useState(false)
-  const [done, setDone] = useState(false)
+  const [started, setStarted] = useState(false)
+  const [time, setTime] = useState(0)
 
-  const run = () => {
-    try {
-      const res = eval(code + "; reverse()")
-      setOut(res)
-    } catch (e: any) {
-      setOut(e.message)
-    }
-  }
-
-  if (done) return <h2>Round 3 Complete</h2>
+  useEffect(() => {
+    if (!started) return
+    const t = setInterval(() => setTime((t) => t + 1), 1000)
+    return () => clearInterval(t)
+  }, [started])
 
   return (
-    <div style={{ padding: 20 }}>
-      
-      {!start && (
-        <button onClick={() => setStart(true)}>Start</button>
-      )}
+    <div className="h-screen flex flex-col text-white bg-black">
+      <div className="p-4 flex justify-between">
+        <h1>Live Coding</h1>
+        <span>{time}s</span>
+      </div>
 
-      {start && (
-        <>
-          <h3>Live Coding</h3>
-
-          <textarea
-            rows={10}
-            style={{ width: "100%" }}
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-          />
-
-          <br /><br />
-
-          <button onClick={run}>Run</button>
-          <button onClick={() => setDone(true)}>Submit</button>
-
-          <pre>{out}</pre>
-        </>
+      {!started && (
+        <button
+          onClick={() => setStarted(true)}
+          className="m-auto bg-blue-500 px-6 py-2"
+        >
+          Start
+        </button>
       )}
     </div>
   )

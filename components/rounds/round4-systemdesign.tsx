@@ -1,41 +1,66 @@
-"use client"
-import { useState } from "react"
+'use client'
+
+import { useState } from 'react'
+import { PrepLogo } from '../prep-logo'
+import { Clock } from 'lucide-react'
+
+const prompt = {
+  title: "Design a Real-Time Chat Application",
+  description: "Design a scalable chat app like WhatsApp.",
+  requirements: [
+    "Real-time messaging",
+    "Scalable system",
+    "Message storage",
+  ],
+}
 
 export function Round4SystemDesign() {
-  const [items, setItems] = useState<string[]>([])
-  const [input, setInput] = useState("")
-  const [done, setDone] = useState(false)
+  const [time, setTime] = useState(0)
+  const [explanation, setExplanation] = useState('')
 
-  if (done) return <h2>Round 4 Complete</h2>
+  // Timer
+  useState(() => {
+    const t = setInterval(() => setTime((t) => t + 1), 1000)
+    return () => clearInterval(t)
+  })
 
   return (
-    <div style={{ padding: 20 }}>
-      <h3>System Design</h3>
+    <div className="h-screen flex flex-col bg-black text-white">
 
-      <input
-        placeholder="Add component (e.g. DB, API)"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-      />
+      {/* Header */}
+      <div className="p-4 flex justify-between border-b border-gray-700">
+        <div className="flex items-center gap-3">
+          <PrepLogo className="h-6 w-6" />
+          <h1>Round 4: System Design</h1>
+        </div>
+        <span>{time}s</span>
+      </div>
 
-      <button
-        onClick={() => {
-          if (input) {
-            setItems([...items, input])
-            setInput("")
-          }
-        }}
-      >
-        Add
-      </button>
+      {/* Content */}
+      <div className="flex flex-1">
 
-      <ul>
-        {items.map((x, i) => (
-          <li key={i}>{x}</li>
-        ))}
-      </ul>
+        {/* Left */}
+        <div className="w-1/2 p-6 border-r border-gray-700">
+          <h2 className="text-lg font-bold">{prompt.title}</h2>
+          <p className="mt-2 text-sm">{prompt.description}</p>
 
-      <button onClick={() => setDone(true)}>Submit</button>
+          <ul className="mt-4 text-sm">
+            {prompt.requirements.map((r, i) => (
+              <li key={i}>• {r}</li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Right */}
+        <div className="w-1/2 p-6">
+          <textarea
+            value={explanation}
+            onChange={(e) => setExplanation(e.target.value)}
+            placeholder="Explain your design..."
+            className="w-full h-full p-4 bg-gray-900 outline-none"
+          />
+        </div>
+      </div>
     </div>
   )
 }

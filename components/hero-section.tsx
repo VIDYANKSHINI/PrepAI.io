@@ -340,13 +340,11 @@ export function HeroSection() {
             muted
             playsInline
             className="absolute inset-0 w-full h-full object-cover"
-            poster="/images/video-poster.jpg"
           >
-            {/* Replace this URL with your own video */}
-            <source src="https://videos.pexels.com/video-files/3129671/3129671-uhd_2560_1440_30fps.mp4" type="video/mp4" />
+            <source src="/video.mp4" type="video/mp4" />
           </video>
-          {/* Dark overlay for better text readability */}
-          <div className="absolute inset-0 bg-background/85 backdrop-blur-sm" />
+          {/* Background Image Overlay */}
+          <div className="absolute inset-0 z-0 bg-background/20" />
         </div>
 
         {/* Gradient accent */}
@@ -354,15 +352,15 @@ export function HeroSection() {
           <div
             className="absolute left-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2 opacity-20"
             style={{
-              background: "radial-gradient(ellipse at center, hsl(211 100% 55%), transparent 70%)",
+              background: "radial-gradient(ellipse at center, hsl(211 100% 55%), transparent 100%)",
             }}
           />
         </div>
 
         <div className="content-container relative z-10 w-full">
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="max-w-2xl text-left">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/50 px-4 py-1.5 mb-8">
+            <div className="flex items-center gap-2 rounded-full border border-border/60 bg-card/50 px-4 py-1.5 mb-8 w-fit">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-full w-full rounded-full bg-emerald-500" />
@@ -371,19 +369,19 @@ export function HeroSection() {
             </div>
 
             {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6">
+            <h1 className=" text-left text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6">
               <span className="text-balance">
                 Master Your Interviews with AI
               </span>
             </h1>
 
             {/* Subheadline */}
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-xl mb-10 leading-relaxed">
               Practice realistic interview rounds, get instant AI feedback, and build the confidence to land your dream job.
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+            <div className="flex flex-col sm:flex-row items-start gap-4 mb-12">
               <button
                 onClick={handleGetStarted}
                 className="inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-4 text-lg font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:brightness-110 hover:shadow-xl hover:shadow-primary/30 active:scale-95"
@@ -398,18 +396,18 @@ export function HeroSection() {
             </div>
 
             {/* Trust indicators */}
-            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-muted-foreground">
+            <div className="flex flex-wrap items-start gap-x-8 gap-y-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                Feacture 1
+                Feature 1
               </span>
               <span className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                Feacture 2
+                Feature 2
               </span>
               <span className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                Feacture 3
+                Feature 3
               </span>
             </div>
           </div>

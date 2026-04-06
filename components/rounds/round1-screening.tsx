@@ -78,7 +78,7 @@ export function Round1Screening() {
         body: formData,
       })
 
-      if (!response.ok) throw new Error(' resume uploading..')
+      if (!response.ok) throw new Error('Failed to parse resume')
 
       const data = await response.json()
       setResumeData(data.resumeData)
@@ -91,8 +91,8 @@ export function Round1Screening() {
         })
       }
     } catch (error) {
-      console.error('Uploading resume:', error)
-      setResumeError('Your resume is being analyzed. Feel free to continue.')
+      console.error('Error parsing resume:', error)
+      setResumeError('Could not parse resume. You can still continue.')
     } finally {
       setIsParsingResume(false)
     }
@@ -130,6 +130,18 @@ export function Round1Screening() {
     }
   }
 
+  const handleBasicSkip = () => {
+    setBasicAnswers([...basicAnswers, '']) // Store empty answer for skipped question
+    setCurrentAnswer('')
+    
+    if (currentQuestion < basicQuestions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1)
+    } else {
+      setStage('mcq')
+      setCurrentQuestion(0)
+    }
+  }
+
   const handleMcqNext = () => {
     if (selectedMcq !== null) {
       setMcqAnswers([...mcqAnswers, selectedMcq])
@@ -155,6 +167,32 @@ export function Round1Screening() {
         
         setStage('complete')
       }
+    }
+  }
+
+  const handleMcqSkip = () => {
+    setMcqAnswers([...mcqAnswers, -1]) // Store -1 for skipped question (will never match correct answer)
+    setSelectedMcq(null)
+    
+    if (currentQuestion < mcqQuestions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1)
+    } else {
+      // Calculate score and proceed (skipped questions count as wrong)
+      const correctAnswers = mcqAnswers.concat(-1).filter(
+        (ans, idx) => ans === mcqQuestions[idx].correct
+      ).length
+      
+      updateRoundScore('screening', {
+        score: (correctAnswers / mcqQuestions.length) * 100,
+        maxScore: 100,
+        feedback: `You answered ${correctAnswers} out of ${mcqQuestions.length} MCQs correctly.`,
+        details: {
+          mcqScore: (correctAnswers / mcqQuestions.length) * 100,
+          basicQuestions: basicAnswers.length,
+        },
+      })
+      
+      setStage('complete')
     }
   }
 
@@ -311,7 +349,13 @@ export function Round1Screening() {
                 className="w-full rounded-lg border border-border bg-background p-4 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
 
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={handleBasicSkip}
+                  className="flex items-center gap-2 rounded-lg border border-border bg-secondary px-5 py-3 font-medium text-secondary-foreground hover:bg-secondary/80"
+                >
+                  Skip
+                </button>
                 <button
                   onClick={handleBasicNext}
                   disabled={!currentAnswer.trim()}
@@ -361,7 +405,13 @@ export function Round1Screening() {
                 ))}
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={handleMcqSkip}
+                  className="flex items-center gap-2 rounded-lg border border-border bg-secondary px-5 py-3 font-medium text-secondary-foreground hover:bg-secondary/80"
+                >
+                  Skip
+                </button>
                 <button
                   onClick={handleMcqNext}
                   disabled={selectedMcq === null}

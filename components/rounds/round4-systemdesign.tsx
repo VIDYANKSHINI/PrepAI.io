@@ -1,41 +1,91 @@
-"use client"
-import { useState } from "react"
+'use client'
+
+import { useState } from 'react'
+import { useInterview } from '@/lib/interview-context'
+import { PrepLogo } from '../prep-logo'
+import { CheckCircle } from 'lucide-react'
+
+const prompt = {
+  title: "Design a Real-Time Chat Application",
+  description: "Design a scalable chat app like WhatsApp.",
+  requirements: [
+    "Real-time messaging",
+    "Scalable system",
+    "Message storage",
+  ],
+}
 
 export function Round4SystemDesign() {
-  const [items, setItems] = useState<string[]>([])
-  const [input, setInput] = useState("")
-  const [done, setDone] = useState(false)
+  const { setCurrentRound, setCurrentStep } = useInterview()
 
-  if (done) return <h2>Round 4 Complete</h2>
+  const [explanation, setExplanation] = useState('')
+  const [complete, setComplete] = useState(false)
+
+  const handleSubmit = () => {
+    setComplete(true)
+  }
+
+  const nextRound = () => {
+    setCurrentRound(5)
+    setCurrentStep('round5-behavioral')
+  }
+
+  if (complete) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-black text-white">
+        <div className="text-center space-y-4">
+          <CheckCircle className="mx-auto h-10 w-10 text-green-500" />
+          <h2>Round Complete</h2>
+
+          <button
+            onClick={nextRound}
+            className="bg-blue-500 px-6 py-2 rounded"
+          >
+            Next Round →
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div style={{ padding: 20 }}>
-      <h3>System Design</h3>
+    <div className="h-screen flex flex-col bg-black text-white">
 
-      <input
-        placeholder="Add component (e.g. DB, API)"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-      />
+      {/* Header */}
+      <div className="p-4 border-b border-gray-700">
+        <h1>Round 4: System Design</h1>
+      </div>
 
-      <button
-        onClick={() => {
-          if (input) {
-            setItems([...items, input])
-            setInput("")
-          }
-        }}
-      >
-        Add
-      </button>
+      <div className="flex flex-1">
 
-      <ul>
-        {items.map((x, i) => (
-          <li key={i}>{x}</li>
-        ))}
-      </ul>
+        {/* Left */}
+        <div className="w-1/2 p-6 border-r border-gray-700">
+          <h2>{prompt.title}</h2>
+          <p className="mt-2">{prompt.description}</p>
 
-      <button onClick={() => setDone(true)}>Submit</button>
+          <ul className="mt-4">
+            {prompt.requirements.map((r, i) => (
+              <li key={i}>• {r}</li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Right */}
+        <div className="w-1/2 p-6 flex flex-col">
+          <textarea
+            value={explanation}
+            onChange={(e) => setExplanation(e.target.value)}
+            className="flex-1 p-4 bg-gray-900"
+          />
+
+          <button
+            onClick={handleSubmit}
+            className="mt-4 bg-green-600 px-4 py-2 rounded"
+          >
+            Submit
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

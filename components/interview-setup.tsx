@@ -17,11 +17,11 @@ const roles = [
   'UI/UX Designer',
   'QA Engineer',
 ]
-
+WHI
 const difficulties = [
-  { value: 'easy', label: 'Easy', description: 'Entry level / Fresher', color: 'text-green-500' },
-  { value: 'medium', label: 'Medium', description: '2-5 years experience', color: 'text-yellow-500' },
-  { value: 'hard', label: 'Hard', description: 'Senior / Lead positions', color: 'text-red-500' },
+  { value: 'easy', label: 'Easy', description: 'Entry level / Fresher', color: 'text-white-500' },
+  { value: 'medium', label: 'Medium', description: '2-5 years experience', color: 'text-white-500' },
+  { value: 'hard', label: 'Hard', description: 'Senior / Lead positions', color: 'text-white-500' },
 ]
 
 const interviewTypes = [

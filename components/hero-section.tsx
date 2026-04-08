@@ -170,9 +170,27 @@ function FeaturesSection() {
 
 function HowItWorksSection() {
   const steps = [
-    { step: '01', title: 'Set Up Your Profile', description: 'Upload your resume and select your target role and difficulty level.' },
-    
-  ]
+  {
+    step: '01',
+    title: 'Create Your Profile',
+    description: 'Upload your resume and choose your target job role, skills, and experience level.',
+  },
+  {
+    step: '02',
+    title: 'Start AI Interview',
+    description: 'Begin a realistic AI-powered mock interview tailored specifically to your profile.',
+  },
+  {
+    step: '03',
+    title: 'Solve & Respond',
+    description: 'Answer questions, solve coding problems, and explain your thinking just like a real interview.',
+  },
+  {
+    step: '04',
+    title: 'Get Smart Feedback',
+    description: 'Receive instant AI feedback, scores, and actionable tips to improve your performance.',
+  },
+]
 
   return (
     <section id="how-it-works" className="py-20 md:py-28 bg-card/30 border-y border-border/40">
@@ -180,7 +198,7 @@ function HowItWorksSection() {
         <div className="text-center mb-16">
           <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">How it works</p>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Tagline{/* Start practicing in minutes */}
+            Crack Interviews with Confidence{/* Start practicing in minutes */}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Details{/*Our streamlined process gets you from signup to your first practice interview in under 2 minutes. */}
@@ -206,7 +224,7 @@ function HowItWorksSection() {
 
 function TestimonialsSection() {
   const testimonials = [
-    {/* Testimonial 1 }
+    
     {
       quote: "PrepAI helped me land my dream job at a FAANG company. The AI feedback was incredibly detailed and helped me identify my weak points.",
       name: "Sarah Chen",
@@ -225,7 +243,7 @@ function TestimonialsSection() {
       role: "Product Manager at Amazon",
       initials: "ER",
     },
-    */}
+    
   ]
 
   return (
@@ -288,7 +306,7 @@ function CTASection({ onGetStarted }: { onGetStarted: () => void }) {
             <ArrowRight className="h-5 w-5" />
           </button>
           <p className="mt-4 text-sm text-muted-foreground">
-            punchline{/* No credit card required. Start practicing in minutes. */}
+           Land Your Dream Job Faster with AI{/* No credit card required. Start practicing in minutes. */}
           </p>
         </div>
       </div>
@@ -399,15 +417,15 @@ export function HeroSection() {
             <div className="flex flex-wrap items-start gap-x-8 gap-y-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                Feature 1
+                AI-Powered Mock Interviews
               </span>
               <span className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                Feature 2
+                Instant Feedback & Scoring
               </span>
               <span className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                Feature 3
+                Complete 5-Round Simulation
               </span>
             </div>
           </div>

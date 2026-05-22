@@ -170,4 +170,65 @@ Dark theme with 4 primary colors:
 | `--primary` | 211 100% 55% | Blue accent |
 | `--muted-foreground` | 220 10% 60% | Secondary text |
 
+## Getting Started
 
+### Prerequisites
+
+- Node.js 18+
+- pnpm (recommended) or npm
+
+### Installation
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd prepai
+
+# Install dependencies
+pnpm install
+
+# Run development server
+pnpm dev
+```
+
+## Browser Compatibility
+
+Requires browsers with support for:
+
+- Web Speech API (Chrome, Edge recommended)
+- MediaDevices API (getUserMedia)
+- ES2020+ JavaScript features
+
+## Usage
+
+1. Click "Start Your Free Interview" on the landing page
+2. Fill in your details and optionally upload a resume
+3. Grant camera and microphone permissions
+4. Click "Start Interview" to begin
+5. Answer questions using voice or text input
+6. Use Skip to pass questions or Next to continue
+7. View your results and detailed analysis
+8. Practice again or start a new interview
+
+## Performance Optimizations
+
+- Image optimization with Next.js Image component
+- Lazy loading of analysis components
+- Efficient re-renders with React Context
+- Responsive image sizing with srcset
+
+## Accessibility
+
+- Semantic HTML structure
+- ARIA labels for interactive elements
+- Keyboard navigation support
+- Screen reader compatible
+- Color contrast compliant
+
+## License
+
+MIT License - See LICENSE file for details.
+
+---
+
+Built with Next.js, Tailwind CSS, and AI SDK by the PrepAI.io team.

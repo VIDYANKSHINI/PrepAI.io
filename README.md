@@ -270,15 +270,6 @@ pnpm install
 pnpm dev
 ```
 
-### Environment Variables
-
-No environment variables are required for basic functionality. For AI-powered resume parsing with custom models:
-
-```env
-# Optional: For advanced AI features
-AI_GATEWAY_API_KEY=your_api_key
-```
-
 ## Browser Compatibility
 
 Requires browsers with support for:

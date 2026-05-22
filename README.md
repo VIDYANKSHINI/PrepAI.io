@@ -1,27 +1,67 @@
-# PrepAI.io
+# PrepAI.io - AI-Powered Interview Practice Platform
 
-## Problem
-Many candidates struggle with interview anxiety and lack structured, realistic practice before facing real interviews. Traditional preparation methods often fall short because they do not provide objective, real-time feedback on both the technical accuracy of answers and the candidate's behavioral communication skills.
-
-## Solution
-PrepAI.io is an AI-powered interview practice platform designed to simulate real HR and Technical interviews. By analyzing not just what candidates say but how they say it, PrepAI.io provides a comprehensive evaluation of technical accuracy, coding time complexity, and behavioral metrics (such as facial expressions, speaking pace, and confidence). This enables candidates to systematically improve their performance with data-driven feedback.
+PrepAI.io is a comprehensive, real-time AI interview practice platform that helps users master their interviews through voice-first AI conversations, video analysis, and detailed behavioral feedback.
 
 ## Features
-- Voice-first AI interview simulations with natural conversation capabilities.
-- Real-time behavioral tracking including eye contact, posture, and facial expression analysis.
-- Custom interview question generation tailored through automated resume parsing.
-- Support for multiple interview formats, including HR and Technical rounds.
-- Automated technical evaluation engine featuring a Docker-based code sandbox and time complexity analysis.
-- Comprehensive scoring system that combines behavioral communication metrics and technical proficiency.
-- Detailed post-interview feedback reports with historical data storage.
+
+### Core Functionality
+
+- **Voice-First AI Interviews** - Natural conversation with < 2 second latency using Web Speech API for speech recognition and synthesis
+- **Real-Time Video Analysis** - Live webcam feed with behavioral metrics tracking
+- **Resume Parsing** - Upload PDF resumes for AI-generated custom interview questions
+- **Multi-Type Interviews** - Support for HR and Technical interview formats
+- **5-Question Sessions** - Structured interview flow with skip/next navigation
+
+### AI Interviewer
+
+- Professional AI interviewer avatar ("Sarah") that speaks questions aloud
+- Natural female voice synthesis with multiple voice options
+- Visual speaking indicator when AI is talking
+- Smooth question transitions with audio feedback
+
+### Behavioral Analysis
+
+Real-time tracking and analysis of:
+
+- **Eye Contact** - Camera-based gaze detection
+- **Posture Analysis** - Body positioning and professionalism
+- **Facial Expressions** - Confidence, happiness, neutrality, nervousness breakdown
+- **Speaking Pace** - Words per minute analysis
+- **Fluency Score** - Natural speech flow measurement
+- **Filler Words** - Detection and counting of "um", "uh", "like", etc.
+- **Response Time** - Per-question timing metrics
+
+### Input Methods
+
+- **Voice Input** - Continuous speech recognition with live transcript
+- **Text Input** - Fallback textarea for typing responses
+- **Combined Mode** - Both methods work together, with speech syncing to text
+
+### Results & Analysis
+
+#### Summary Screen
+- Overall score (0-100) with visual progress ring
+- Individual scores: Communication, Content Quality, Confidence
+- Interview statistics: Duration, Questions Answered, Type, Role
+
+#### Detailed Analysis Screen
+- Key stats: Total Duration, Words Spoken, Average Response Time, Filler Word Count
+- Behavioral metrics with progress bars
+- Facial expression breakdown chart
+- Question-by-question transcript with duration and word count
+- Personalized strengths and improvement recommendations
 
 ## Tech Stack
-- **Frontend**: Next.js 16 (App Router), TypeScript, Tailwind CSS, shadcn/ui
-- **Backend Core**: FastAPI, Next.js API Routes
-- **Workflow Automation**: N8N
-- **AI & Machine Learning**: Vercel AI SDK, HuggingFace Emotion Models, LLM APIs
-- **Database**: PostgreSQL
-- **Browser APIs**: Web Speech API, MediaDevices API
+
+- **Framework**: Next.js 16 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS with custom design tokens
+- **UI Components**: shadcn/ui
+- **Fonts**: Inter (body), Space Grotesk (display)
+- **APIs**: 
+  - Web Speech API (speech recognition & synthesis)
+  - MediaDevices API (camera/microphone access)
+  - AI SDK for resume parsing
 
 ## System Architecture
 
@@ -102,55 +142,188 @@ flowchart TD
     DisplayResults --> End
 ```
 
-## Setup
+## Project Structure
+
+```
+app/
+├── api/
+│   ├── interview/          # AI conversation endpoint
+│   │   └── route.ts
+│   └── parse-resume/       # Resume parsing endpoint
+│       └── route.ts
+├── globals.css             # Global styles and design tokens
+├── layout.tsx              # Root layout with fonts
+└── page.tsx                # Main page with step routing
+
+components/
+├── feature-highlights.tsx  # Landing page features grid
+├── hero-section.tsx        # Landing page hero
+├── interview-analysis.tsx  # Detailed analysis view
+├── interview-results.tsx   # Results summary view
+├── interview-session.tsx   # Live interview UI
+├── interview-setup.tsx     # Interview configuration form
+└── prep-logo.tsx           # Brand logo component
+
+lib/
+├── interview-context.tsx   # React context for interview state
+└── utils.ts                # Utility functions
+
+public/
+└── images/
+    ├── ai-interviewer.jpg  # AI avatar image
+    └── dashboard-preview.jpg # Hero section preview image
+```
+
+## Application Flow
+
+1. **Home** (`/`) - Landing page with value proposition and CTA
+2. **Setup** - Configure interview: name, role, type, permissions, optional resume upload
+3. **Live Interview** - 5-question AI interview with camera/mic
+4. **Results** - Score summary with option to view detailed analysis
+5. **Analysis** - In-depth behavioral feedback and recommendations
+
+## Key Components
+
+### InterviewContext
+
+Central state management for the entire interview flow:
+
+```typescript
+interface InterviewContextType {
+  config: InterviewConfig | null          // Interview settings
+  currentStep: 'home' | 'setup' | 'live' | 'results' | 'analysis'
+  results: InterviewResults | null        // Final scores and data
+}
+```
+
+### InterviewConfig
+
+```typescript
+interface InterviewConfig {
+  name: string
+  role: string
+  interviewType: 'HR' | 'Technical'
+  microphoneEnabled: boolean
+  cameraEnabled: boolean
+  resumeData?: ResumeData
+  resumeText?: string
+}
+```
+
+### BehavioralMetrics
+
+```typescript
+interface BehavioralMetrics {
+  eyeContact: number
+  facialExpressions: {
+    neutral: number
+    happy: number
+    confident: number
+    nervous: number
+  }
+  posture: number
+  speakingPace: number
+  fluency: number
+  fillerWords: number
+  responseTime: number[]
+}
+```
+
+## Responsive Design
+
+The application is fully responsive with:
+
+- `screen-container` - Full viewport height, no horizontal overflow
+- `content-container` - Max-width 1280px with responsive padding
+- `video-responsive` - 16:9 aspect ratio for video elements
+- Mobile-first breakpoints: `sm` (640px), `md` (768px), `lg` (1024px), `xl` (1280px)
+
+## Color Scheme
+
+Dark theme with 4 primary colors:
+
+| Token | HSL Value | Usage |
+|-------|-----------|-------|
+| `--background` | 225 15% 10% | Main background |
+| `--foreground` | 0 0% 98% | Primary text |
+| `--primary` | 211 100% 55% | Blue accent |
+| `--muted-foreground` | 220 10% 60% | Secondary text |
+
+## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+
 - pnpm (recommended) or npm
-- Python 3.9+ (for FastAPI core)
-- Docker (for code sandbox)
-- PostgreSQL
-- N8N instance
 
 ### Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/VIDYANKSHINI/PrepAI.io.git
-   cd PrepAI.io
-   ```
 
-2. Install frontend dependencies:
-   ```bash
-   pnpm install
-   ```
+```bash
+# Clone the repository
+git clone <repository-url>
+cd prepai
 
-3. Configure environment variables (create a `.env.local` file with required API keys and database credentials).
+# Install dependencies
+pnpm install
 
-4. Start the development server:
-   ```bash
-   pnpm dev
-   ```
+# Run development server
+pnpm dev
+```
+
+### Environment Variables
+
+No environment variables are required for basic functionality. For AI-powered resume parsing with custom models:
+
+```env
+# Optional: For advanced AI features
+AI_GATEWAY_API_KEY=your_api_key
+```
+
+## Browser Compatibility
+
+Requires browsers with support for:
+
+- Web Speech API (Chrome, Edge recommended)
+- MediaDevices API (getUserMedia)
+- ES2020+ JavaScript features
 
 ## Usage
-1. Open the application in a modern browser (Chrome or Edge recommended).
-2. Create an account or log in.
-3. Select your desired interview type (HR or Technical).
-4. Upload your resume to allow the AI to tailor the interview questions.
-5. Grant necessary permissions for your camera and microphone.
-6. Complete the interactive interview session.
-7. Review your final interview report, including behavioral and technical scores.
 
-## Screenshots
-*(Add relevant screenshots of the application here)*
+1. Click "Start Your Free Interview" on the landing page
+2. Fill in your details and optionally upload a resume
+3. Grant camera and microphone permissions
+4. Click "Start Interview" to begin
+5. Answer questions using voice or text input
+6. Use Skip to pass questions or Next to continue
+7. View your results and detailed analysis
+8. Practice again or start a new interview
 
-## Demo
-*(Add a link to the live demo or a demonstration video here)*
+## Performance Optimizations
+
+- Image optimization with Next.js Image component
+- Lazy loading of analysis components
+- Efficient re-renders with React Context
+- Responsive image sizing with srcset
+
+## Accessibility
+
+- Semantic HTML structure
+- ARIA labels for interactive elements
+- Keyboard navigation support
+- Screen reader compatible
+- Color contrast compliant
 
 ## Team
+
 - **Vidyankshini Vibhute**: Frontend Development, UI Integration, User Experience
 - **Aditya Yelmar**: UI/UX Design, Market Research
 - **Shravani Tanksale**: Core Backend, API Development
 - **Siddhesh Waghmare**: Backend Support, Growth Analysis
 
 ## License
-This project is licensed under the MIT License.
+
+MIT License - See LICENSE file for details.
+
+---
+
+Built with Next.js, Tailwind CSS, and AI SDK by the PrepAI.io team.

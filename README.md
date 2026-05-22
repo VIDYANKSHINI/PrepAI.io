@@ -1,152 +1,156 @@
-# PrepAI.io - AI-Powered Interview Practice Platform
+# PrepAI.io
 
-<p align="center">
-  <em>A comprehensive, real-time AI interview practice platform that helps users master their interviews through voice-first AI conversations, video analysis, and detailed behavioral feedback.</em>
-</p>
+## Problem
+Many candidates struggle with interview anxiety and lack structured, realistic practice before facing real interviews. Traditional preparation methods often fall short because they do not provide objective, real-time feedback on both the technical accuracy of answers and the candidate's behavioral communication skills.
 
-## 🌟 Features
+## Solution
+PrepAI.io is an AI-powered interview practice platform designed to simulate real HR and Technical interviews. By analyzing not just what candidates say but how they say it, PrepAI.io provides a comprehensive evaluation of technical accuracy, coding time complexity, and behavioral metrics (such as facial expressions, speaking pace, and confidence). This enables candidates to systematically improve their performance with data-driven feedback.
 
-### 🎙️ Core Functionality
-- **Voice-First AI Interviews**: Natural conversation with < 2 second latency using Web Speech API for speech recognition and synthesis.
-- **Real-Time Video Analysis**: Live webcam feed with behavioral metrics tracking.
-- **Resume Parsing**: Upload PDF resumes for AI-generated custom interview questions.
-- **Multi-Type Interviews**: Support for HR and Technical interview formats.
-- **5-Question Sessions**: Structured interview flow with skip/next navigation.
+## Features
+- Voice-first AI interview simulations with natural conversation capabilities.
+- Real-time behavioral tracking including eye contact, posture, and facial expression analysis.
+- Custom interview question generation tailored through automated resume parsing.
+- Support for multiple interview formats, including HR and Technical rounds.
+- Automated technical evaluation engine featuring a Docker-based code sandbox and time complexity analysis.
+- Comprehensive scoring system that combines behavioral communication metrics and technical proficiency.
+- Detailed post-interview feedback reports with historical data storage.
 
-### 🤖 AI Interviewer
-- Professional AI interviewer avatar ("Sarah") that speaks questions aloud.
-- Natural female voice synthesis with multiple voice options.
-- Visual speaking indicator when AI is talking.
-- Smooth question transitions with audio feedback.
+## Tech Stack
+- **Frontend**: Next.js 16 (App Router), TypeScript, Tailwind CSS, shadcn/ui
+- **Backend Core**: FastAPI, Next.js API Routes
+- **Workflow Automation**: N8N
+- **AI & Machine Learning**: Vercel AI SDK, HuggingFace Emotion Models, LLM APIs
+- **Database**: PostgreSQL
+- **Browser APIs**: Web Speech API, MediaDevices API
 
-### 📊 Behavioral Analysis
-Real-time tracking and analysis of:
-- **Eye Contact**: Camera-based gaze detection.
-- **Posture Analysis**: Body positioning and professionalism.
-- **Facial Expressions**: Confidence, happiness, neutrality, nervousness breakdown.
-- **Speaking Pace**: Words per minute analysis.
-- **Fluency Score**: Natural speech flow measurement.
-- **Filler Words**: Detection and counting of "um", "uh", "like", etc.
-- **Response Time**: Per-question timing metrics.
-
-## 🏗️ System Architecture
-
-The architecture is built on a modern Next.js 16 (App Router) foundation, leveraging browser APIs for media and speech, and the Vercel AI SDK for intelligence.
+## System Architecture
 
 ```mermaid
-graph TD
-    Client[Client Browser]
-    
-    subgraph Frontend [Next.js Client Components]
-        UI[UI & Layout shadcn/ui]
-        State[InterviewContext]
-        Media[MediaDevices API\nCamera/Mic]
-        Speech[Web Speech API\nSTT/TTS]
+flowchart TD
+    Start([Start])
+
+    subgraph FRONTEND [FRONTEND]
+        direction TB
+        Login[User Login or Signup]
+        SelectType[Select Interview Type]
+        UploadResume[Upload Resume]
+        FinalReport[Final Interview Report]
+        DisplayResults[Display Results]
         
-        UI <--> State
-        Media --> State
-        Speech <--> State
-    end
-    
-    subgraph Backend [Next.js API Routes]
-        ChatAPI[/api/interview/]
-        ResumeAPI[/api/parse-resume/]
-    end
-    
-    subgraph External [External Services]
-        LLM[LLM Provider via AI SDK]
+        Login --> SelectType
+        SelectType --> UploadResume
+        FinalReport --> DisplayResults
     end
 
-    Client --> Frontend
-    State --> ChatAPI
-    State --> ResumeAPI
-    ChatAPI <--> LLM
-    ResumeAPI <--> LLM
+    subgraph BACKEND [BACKEND]
+        FastAPI[FastAPI Core Layer]
+    end
+
+    subgraph N8N [N8N WORKFLOW]
+        direction TB
+        TriggerWorkflow[Trigger Workflow]
+        
+        subgraph QUESTION_GEN [QUESTION GENERATION]
+            direction TB
+            CallLLM[Call LLM API]
+            GenQuestions[Generate Round Questions]
+            CallLLM --> GenQuestions
+        end
+
+        subgraph EVAL_ENGINE [EVALUATION ENGINE]
+            direction TB
+            DockerSandbox[Docker Code Sandbox]
+            LLMEval[LLM Answer Evaluation]
+            TimeComplexity[Time Complexity Analysis]
+            DockerSandbox --> LLMEval
+            LLMEval --> TimeComplexity
+        end
+
+        subgraph BEHAVIORAL [BEHAVIORAL ANALYSIS]
+            direction TB
+            STT[Speech to Text]
+            HFModel[HuggingFace Emotion Model]
+            CommScoring[Communication Scoring]
+            STT --> HFModel
+            HFModel --> CommScoring
+        end
+
+        subgraph SCORING [SCORING AND REPORTING]
+            direction TB
+            CalcScore[Calculate Round Score]
+            StoreDB[(Store in PostgreSQL)]
+            CalcScore --> StoreDB
+        end
+        
+        GenerateFeedback[Generate Feedback Report]
+
+        TriggerWorkflow --> CallLLM
+        TriggerWorkflow --> STT
+        GenQuestions --> DockerSandbox
+        TimeComplexity --> CalcScore
+        CommScoring --> CalcScore
+        StoreDB --> GenerateFeedback
+    end
+
+    End([End])
+
+    Start --> Login
+    UploadResume --> FastAPI
+    FastAPI --> TriggerWorkflow
+    GenerateFeedback -- Result --> FastAPI
+    FastAPI -- Send to Frontend --> FinalReport
+    DisplayResults --> End
 ```
 
-### Application Flow
-1. **Home (`/`)**: Landing page with value proposition and CTA.
-2. **Setup**: Configure interview details (name, role, type, permissions, optional resume upload).
-3. **Live Interview**: 5-question AI interview with camera/mic.
-4. **Results**: Score summary with option to view detailed analysis.
-5. **Analysis**: In-depth behavioral feedback and recommendations.
-
-## 💻 Tech Stack
-
-- **Framework**: Next.js 16 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS with custom design tokens
-- **UI Components**: shadcn/ui, Radix UI
-- **APIs**: Web Speech API, MediaDevices API
-- **AI Integration**: Vercel AI SDK
-
-## 📂 Project Structure
-
-```text
-app/
-├── api/
-│   ├── interview/          # AI conversation endpoint
-│   └── parse-resume/       # Resume parsing endpoint
-├── globals.css             # Global styles and design tokens
-├── layout.tsx              # Root layout with fonts
-└── page.tsx                # Main page with step routing
-
-components/
-├── feature-highlights.tsx  # Landing page features grid
-├── hero-section.tsx        # Landing page hero
-├── interview-analysis.tsx  # Detailed analysis view
-├── interview-results.tsx   # Results summary view
-├── interview-session.tsx   # Live interview UI
-├── interview-setup.tsx     # Interview configuration form
-└── prep-logo.tsx           # Brand logo component
-
-lib/
-├── interview-context.tsx   # React context for interview state
-└── utils.ts                # Utility functions
-```
-
-## 🚀 Getting Started
+## Setup
 
 ### Prerequisites
 - Node.js 18+
 - pnpm (recommended) or npm
+- Python 3.9+ (for FastAPI core)
+- Docker (for code sandbox)
+- PostgreSQL
+- N8N instance
 
 ### Installation
-
 1. Clone the repository:
    ```bash
    git clone https://github.com/VIDYANKSHINI/PrepAI.io.git
    cd PrepAI.io
    ```
 
-2. Install dependencies:
+2. Install frontend dependencies:
    ```bash
    pnpm install
    ```
 
-3. Run the development server:
+3. Configure environment variables (create a `.env.local` file with required API keys and database credentials).
+
+4. Start the development server:
    ```bash
    pnpm dev
    ```
 
-4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Usage
+1. Open the application in a modern browser (Chrome or Edge recommended).
+2. Create an account or log in.
+3. Select your desired interview type (HR or Technical).
+4. Upload your resume to allow the AI to tailor the interview questions.
+5. Grant necessary permissions for your camera and microphone.
+6. Complete the interactive interview session.
+7. Review your final interview report, including behavioral and technical scores.
 
-## 🌐 Browser Compatibility
+## Screenshots
+*(Add relevant screenshots of the application here)*
 
-Requires modern browsers with support for:
-- Web Speech API (Chrome, Edge recommended for best experience)
-- MediaDevices API (getUserMedia)
-- ES2020+ JavaScript features
+## Demo
+*(Add a link to the live demo or a demonstration video here)*
 
-## 🎨 Design & Accessibility
+## Team
+- **Vidyankshini Vibhute**: Frontend Development, UI Integration, User Experience
+- **Aditya Yelmar**: UI/UX Design, Market Research
+- **Shravani Tanksale**: Core Backend, API Development
+- **Siddhesh Waghmare**: Backend Support, Growth Analysis
 
-- **Responsive**: Fully responsive across mobile, tablet, and desktop viewports.
-- **Theming**: Sleek dark theme with carefully selected HSL color tokens for high contrast and modern feel.
-- **Accessibility**: Semantic HTML, ARIA labels, keyboard navigation, and screen reader compatibility.
-
-## 📄 License
-
-MIT License - See LICENSE file for details.
-
----
-*Built with ❤️ using Next.js, Tailwind CSS, and AI SDK by the PrepAI.io team.*
+## License
+This project is licensed under the MIT License.
